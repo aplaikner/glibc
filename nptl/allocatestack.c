@@ -402,6 +402,11 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
 		  return errno;
 		}
 	    }
+	  int prefault =  madvise(mem+size-4096*4, 4096*4, MADV_POPULATE_WRITE); 
+	  if(prefault == -1) 
+		  printf("MADVISE FAILED with error %s and number %d\n", strerror(errno), errno);
+		
+
 
 	  /* Remember the stack-related values.  */
 	  pd->stackblock = mem;
