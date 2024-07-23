@@ -384,19 +384,11 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
 	  pd = (struct pthread *) ((((uintptr_t) mem + size)
 				    - TLS_TCB_SIZE)
 				   & ~tls_static_align_m1);
-	  struct pthread *pd_no_align = (struct pthread *) ((((uintptr_t) mem + size)
-				    - TLS_TCB_SIZE));
-	  printf("Pthread struct address aligned: %p; Pthread struct address not aligned: %p\n", pd, pd_no_align);
-	  printf("FIRST clause taken pthread struct address: %p for vma upper end %p\n", pd, mem+size);
-	  printf("TLS_TCB_SIZE: %ld\n", TLS_TCB_SIZE);
-	  printf("Alignment: %lx\n",  ~tls_static_align_m1);
-	  printf("tls_static_size_for_stack: %ld\n",tls_static_size_for_stack);
 #elif TLS_DTV_AT_TP
 	  pd = (struct pthread *) ((((uintptr_t) mem + size
 				    - tls_static_size_for_stack)
 				    & ~tls_static_align_m1)
 				   - TLS_PRE_TCB_SIZE);
-	  printf("SECOND\n");
 #endif
 
 	  /* Now mprotect the required region excluding the guard area.  */
@@ -417,19 +409,12 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
 	  if(prefault == -1) 
 		  printf("MADVISE FAILED with error %s and number %d\n", strerror(errno), errno);
 #endif
-
-	  printf("Size of pthread struct:%ld\n", sizeof(*pd));
-	  printf("Size of header:%ld\n", sizeof(pd->header));
-
 	  /* Remember the stack-related values.  */
 	  pd->stackblock = mem;
-	  printf("ACCESS at %p for upper end %p\n", &(pd->stackblock), mem+size);
 	  pd->stackblock_size = size;
-	  printf("ACCESS at %p for upper end %p\n", &(pd->stackblock_size), mem+size);
 	  /* Update guardsize for newly allocated guardsize to avoid
 	     an mprotect in guard resize below.  */
 	  pd->guardsize = guardsize;
-	  printf("ACCESS at %p for upper end %p\n", &(pd->guardsize), mem+size);
 
 	  /* We allocated the first block thread-specific data array.
 	     This address will not change for the lifetime of this
@@ -577,13 +562,8 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
 #if TLS_TCB_AT_TP
   /* The stack begins before the TCB and the static TLS block.  */
   stacktop = ((char *) (pd + 1) - tls_static_size_for_stack);
-  printf("PD is:%p\n", ((char *)(pd+1)));
-  printf("PD calculation is:%p\n", ((char *) pd)+(sizeof(*pd)));
-  printf("Static tls stack size: %ld\n", tls_static_size_for_stack);
-  printf("FIRST: Stacktop: %p\n", stacktop);
 #elif TLS_DTV_AT_TP
   stacktop = (char *) (pd - 1);
-  printf("SECOND: Start of real stack is at: %p\n", stacktop);
 #endif
 
   *stacksize = stacktop - pd->stackblock;
