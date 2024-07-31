@@ -403,12 +403,6 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
 		}
 	    }
 
-	  int prefault;	  
-#if _STACK_GROWS_DOWN
-	  prefault =  madvise(mem+size-4096*4, 4096*4, MADV_POPULATE_WRITE); 
-	  if(prefault == -1) 
-		  printf("MADVISE FAILED with error %s and number %d\n", strerror(errno), errno);
-#endif
 	  /* Remember the stack-related values.  */
 	  pd->stackblock = mem;
 	  pd->stackblock_size = size;
